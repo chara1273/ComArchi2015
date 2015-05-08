@@ -88,3 +88,41 @@ int generate_matrix(int rows, int cols, string filename)
 
 	return 0;
 }
+
+// week 2
+int read_matrix_transpose(vector<vector<float>> &M, string filename)
+{
+	ifstream input_matrix;
+	input_matrix.open(filename);
+	if (!input_matrix.good())
+	{
+		cout << "Could not open " << filename << endl;
+		return -1;
+	}
+	int rows = 0;
+	int cols = 0;
+	input_matrix >> rows;
+	input_matrix >> cols;
+
+	M.resize(cols);
+
+	for (int i = 0; i < cols; i++)
+	{
+		M[i].resize(rows, 0);
+	}
+
+	for (int j = 0; j < rows; j++)
+	{
+		for (int i = 0; i < cols; i++)
+		{
+			input_matrix >> M[i][j];
+		}
+	}
+	input_matrix.close();
+	if (cols != M.size() || rows != M[0].size())
+	{
+		cout << "Input failed" << endl;
+		return -1;
+	}
+	return 0;
+}
