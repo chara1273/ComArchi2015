@@ -4,6 +4,10 @@
 #include <ctime>
 #include <vector>
 #include <chrono>
+extern "C"
+{
+#include <immintrin.h>
+}
 
 #include "function.hpp"
 
@@ -45,6 +49,7 @@ int main()
 		chrono::system_clock::time_point StartTime = chrono::system_clock::now();
 		//---------------Matrix Multiplication---------------//
 
+		/* transposed, using pointers */
 		for (int i = 0; i < A.size(); i++)
 		{
 			for (int j = 0; j < B.size(); j++)
@@ -60,6 +65,47 @@ int main()
 			}
 		}
 
+		/* AVX
+		__m256 reg00, reg01, reg02, reg03, reg04;
+		float scratch[8];
+		
+		for (int i = 0; i < A.size(); i++)
+		{
+			for (int j = 0; j < B.size(); j++)
+			{
+				float temp = 0.0;
+				for (int k = 0; k < A[0].size(); k = k + 32)
+				{
+					reg00 = _mm256_loadu_ps(&A[i][k]);
+					reg01 = _mm256_loadu_ps(&B[j][k]);
+					reg00 = _mm256_mul_ps(reg00, reg01);
+
+					reg01 = _mm256_loadu_ps(&A[i][k + 8]);
+					reg02 = _mm256_loadu_ps(&B[j][k + 8]);
+					reg01 = _mm256_mul_ps(reg01, reg02);
+
+					reg00 = _mm256_add_ps(reg00, reg01);
+
+					reg01 = _mm256_loadu_ps(&A[i][k + 16]);
+					reg02 = _mm256_loadu_ps(&B[j][k + 16]);
+					reg01 = _mm256_mul_ps(reg01, reg02);
+
+					reg02 = _mm256_loadu_ps(&A[i][k + 24]);
+					reg03 = _mm256_loadu_ps(&B[j][k + 24]);
+					reg02 = _mm256_mul_ps(reg02, reg03);
+
+					reg01 = _mm256_add_ps(reg01, reg02);
+					reg00 = _mm256_add_ps(reg00, reg01);
+
+					_mm256_storeu_ps(scratch, reg00);
+					temp += scratch[0] + scratch[1] + scratch[2] + scratch[3]
+						+ scratch[4] + scratch[5] + scratch[6] + scratch[7];
+				}
+				C[i][j] = temp;
+			}
+		}
+		*/
+
 		/* multiplication with transposed B
 		for (int i = 0; i < A.size(); i++)
 		{
@@ -70,30 +116,6 @@ int main()
 					C[i][j] += A[i][k] * B[j][k];
 				}
 			}
-		}
-		*/
-
-		/* block 2D-partitioning
-		for (int k = 0; k < A.size(); k++)
-		{
-			for (int i = 0; i < A.size(); i++)
-			{
-				for (int j = 0; j < B.size(); j++)
-				{
-					C[i][j] += A[i][i] * B[i][j];
-				}
-			}
-
-			for (int i = 0; i < A.size(); i++)
-			{
-				float temp1 = A[i].back();
-				A[i].pop_back();
-				A[i].emplace(A[i].begin(), temp1);
-			}
-
-			vector<float> temp2 = B.back();
-			B.pop_back();
-			B.emplace(B.begin(), temp2);
 		}
 		*/
 
