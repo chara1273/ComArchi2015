@@ -45,7 +45,22 @@ int main()
 		chrono::system_clock::time_point StartTime = chrono::system_clock::now();
 		//---------------Matrix Multiplication---------------//
 
-		/* multiplication with transposed B */
+		for (int i = 0; i < A.size(); i++)
+		{
+			for (int j = 0; j < B.size(); j++)
+			{
+				float* a = &A[i][0];
+				float* b = &B[j][0];
+				float temp = 0;
+				for (int k = 0; k < A[0].size(); k++)
+				{
+					temp += *a++ * *b++;
+				}
+				C[i][j] = temp;
+			}
+		}
+
+		/* multiplication with transposed B
 		for (int i = 0; i < A.size(); i++)
 		{
 			for (int j = 0; j < B.size(); j++)
@@ -56,7 +71,7 @@ int main()
 				}
 			}
 		}
-		
+		*/
 
 		/* block 2D-partitioning
 		for (int k = 0; k < A.size(); k++)
